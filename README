@@ -33,6 +33,16 @@ This means that when gems get released or updated, you'll lag a day behind.
 
 It also means that _downloading_ the gems themselves is not sped up—they're cached in Rubygem's CDN anyways.
 
+
+### Running locally
+
+Checkout, make sure you have a [Memcache]() running, configure `.env`, and
+
+    $ bundle exec foreman run rackup
+
+When developping (by default) cache expires after 1 minute.
+
+
 ### License
 
 Yarp is released under the MIT licence.
