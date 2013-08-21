@@ -22,7 +22,11 @@ Just replace this line on top of your Gemfile:
 
 By this one:
 
-    source 'http://yarp.io'
+    source 'http://us.yarp.io'
+
+Or if you're in Europe:
+
+    source 'http://eu.yarp.io'
 
 
 ### How it works & Caveats
