@@ -7,9 +7,9 @@ GEM
     foreman (0.63.0)
       dotenv (>= 0.7)
       thor (>= 0.13.6)
-    http_logger (0.4.1)
     kgio (2.8.0)
     method_source (0.8.2)
+    newrelic_rpm (3.6.6.147)
     pry (0.9.12.2)
       coderay (~> 1.0.5)
       method_source (~> 0.8)
@@ -42,7 +42,7 @@ PLATFORMS
 DEPENDENCIES
   dalli
   foreman
-  http_logger
+  newrelic_rpm
   pry
   pry-nav
   rainbows

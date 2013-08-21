@@ -3,8 +3,13 @@ require 'dalli'
 require 'digest'
 require 'uri'
 require 'net/http'
+require 'newrelic_rpm'
 
 RUBYGEMS_URL = 'http://rubygems.org'
+
+if defined? Unicorn
+  NewRelic::Agent.after_fork(:force_reconnect => true)
+end
 
 module Ext
   module SliceableHash

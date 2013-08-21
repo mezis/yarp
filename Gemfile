@@ -8,4 +8,5 @@ gem 'dalli'    # memcache adapter
 
 gem 'pry'      # a better ruby shell
 gem 'pry-nav'
-gem 'http_logger'
+
+gem 'newrelic_rpm' # app monitoring
