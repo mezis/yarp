@@ -16,7 +16,7 @@ module Ext
   end
 end
 
-class LateToTheParty < Sinatra::Base
+class Yarp < Sinatra::Base
 
   get '/api/v1/dependencies*' do
     path = "#{request.path}?#{request.query_string}"
