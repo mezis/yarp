@@ -52,6 +52,10 @@ private
 
   def cache
     @cache_connection ||= 
-      Dalli::Client.new(ENV['MEMCACHE_SERVER'], compress:true)
+      Dalli::Client.new(
+        ENV['MEMCACHIER_SERVERS'].split(','),
+        username: ENV['MEMCACHIER_USERNAME'],
+        password: ENV['MEMCACHIER_PASSWORD'],
+        compress:true)
   end
 end
