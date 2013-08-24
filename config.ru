@@ -1,3 +1,6 @@
-require './yarp.rb'
+lib = File.expand_path('../', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
-run Yarp
+require 'yarp/app'
+
+run Yarp::App
