@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Yarp by mezis</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Yarp</h1>
+        <p>Yet Another Rubygems Proxy</p>
+
+        <p class="view"><a href="https://github.com/mezis/yarp">View the Project on GitHub <small>mezis/yarp</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/mezis/yarp/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/mezis/yarp/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/mezis/yarp">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h2>
+<a name="yet-another-rubygems-proxy" class="anchor" href="#yet-another-rubygems-proxy"><span class="octicon octicon-link"></span></a>Yet Another Rubygems Proxy</h2>
+
+<blockquote>
+<p>Yarp is a small <a href="http://www.sinatrarb.com">Sinatra</a> app that makes your <a href="http://bundler.io">bundler</a> faster.
+You'll love it if you deploy a lot.</p>
+</blockquote>
+
+<p>On a medium-size application with 34 direct gems dependencies, running <code>bundle install</code> takes me:</p>
+
+<ul>
+<li>Without Yarp: 18.5 seconds</li>
+<li>With Yarp: 10.0 seconds</li>
+</ul><p>Thats a 45% percent win right there. 8 seconds shaved of my deploy times.
+If you deploy 20 times a day to your staging environments and 5 times a day to production, you're getting 15 minutes of your life back every week. Make those count!</p>
+
+<h3>
+<a name="installation-and-usage" class="anchor" href="#installation-and-usage"><span class="octicon octicon-link"></span></a>Installation and usage</h3>
+
+<p>Deploy your own Yarp or use the one at <code>yarp.io</code>.</p>
+
+<p>Just replace this line on top of your Gemfile:</p>
+
+<pre><code>source 'http://rubygems.org'
+</code></pre>
+
+<p>By this one:</p>
+
+<pre><code>source 'http://us.yarp.io'
+</code></pre>
+
+<p>Or if you're in Europe:</p>
+
+<pre><code>source 'http://eu.yarp.io'
+</code></pre>
+
+<h3>
+<a name="how-it-works--caveats" class="anchor" href="#how-it-works--caveats"><span class="octicon octicon-link"></span></a>How it works &amp; Caveats</h3>
+
+<p>Yarp caches calls to Rubygem's dependency API, for 24 hours if using <code>yarp.io</code>. It redirects all other calls to Rubygems directly.</p>
+
+<p>This means that when gems get released or updated, you'll lag a day behind.</p>
+
+<p>It also means that <em>downloading</em> the gems themselves is not sped up—they're cached in Rubygem's CDN anyways.</p>
+
+<h3>
+<a name="running-locally" class="anchor" href="#running-locally"><span class="octicon octicon-link"></span></a>Running locally</h3>
+
+<p>Checkout, make sure you have a <a href="">Memcache</a> running, configure <code>.env</code>, and</p>
+
+<pre><code>$ bundle exec foreman run rackup
+</code></pre>
+
+<p>When developping (by default) cache expires after 1 minute.</p>
+
+<h3>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h3>
+
+<p>Yarp is released under the MIT licence.
+Copyright (c) 2013 HouseTrip Ltd.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/mezis">mezis</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
