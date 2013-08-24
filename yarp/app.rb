@@ -19,6 +19,7 @@ module Yarp
       ^/api/v1/dependencies |
       ^/(prerelease_)?specs.*\.gz$ |
       /quick.*gemspec\.rz$ |
+      ^/gems/.*\.gem$
     }x
 
     get CACHEABLE do
