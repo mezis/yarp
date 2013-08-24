@@ -1,3 +1,5 @@
+require 'yarp'
+require 'yarp/ext/sliceable_hash'
 require 'sinatra/base'
 require 'dalli'
 require 'digest'
@@ -7,19 +9,12 @@ require 'newrelic_rpm'
 
 RUBYGEMS_URL = 'http://rubygems.org'
 
+
 if defined? Unicorn
   NewRelic::Agent.after_fork(:force_reconnect => true)
 end
 
-module Ext
-  module SliceableHash
-    def slice(*keys)
-      select { |k,v| keys.include?(k) }
-    end
 
-    ::Hash.send :include, self
-  end
-end
 
 module Yarp
   class App < Sinatra::Base
