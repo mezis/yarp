@@ -33,7 +33,7 @@ module Yarp::Cache
       v = get(key) and return v
       value = yield
       cache_name = _condition.call(key, value)
-      Log.info "TEE cache miss #{key} -> #{cache_name} (ttl #{ttl})"
+      Log.warn "TEE cache miss #{key} -> #{cache_name} (ttl #{ttl})"
       _caches[cache_name].fetch(key, ttl) { value }
     end
 

@@ -1,50 +1,94 @@
 ## Yet Another Rubygems Proxy
 
-> Yarp is a small [Sinatra](http://www.sinatrarb.com) app that makes your [bundler](http://bundler.io) faster.
-> You'll love it if you deploy a lot.
+> Yarp is a small [Sinatra](http://www.sinatrarb.com) app that makes your
+> [bundler](http://bundler.io) faster. You'll love it if you update your
+> apps a lot... or simply deploy a lot.
 
-On a medium-size application with 34 direct gems dependencies, running `bundle install` takes me:
+On a example medium-sizes application with 34 direct gems dependencies, Yarp
+makes my `bundle` commands up to 80% faster:
 
-- Without Yarp: 18.5 seconds
-- With Yarp: 10.0 seconds
+|                                | direct Rubygems | with Yarp.io | local Yarp |
+| bundle install (1 gem missing) | 170 s           | 51 s         | 24 s       |
+| bundle update (73 updates)     | 140 s           | 65 s         | 45 s       |
+| bundle update (no change)      | 26 s            | 13 s         | 8.5 s      |
 
-Thats a 45% percent win right there. 8 seconds shaved of my deploy times.
-If you deploy 20 times a day to your staging environments and 5 times a day to production, you're getting 15 minutes of your life back every week. Make those count!
+Thats a 45% percent win right there. 8 seconds shaved of my deploy times. If
+you deploy 20 times a day to your staging environments and 5 times a day to
+production, you're getting 15 minutes of your life back every week. Make
+those count!
 
 
 ### Installation and usage
 
 Deploy your own Yarp or use the one at `yarp.io`.
 
+#### For projects using `bundler`
+
 Just replace this line on top of your Gemfile:
 
     source 'http://rubygems.org'
 
-By this one:
+By one of the following:
 
     source 'http://us.yarp.io'
-
-Or if you're in Europe:
-
     source 'http://eu.yarp.io'
+
+You're done.
+
+
+#### Your own local Yarp
+
+You can make this even faster by deploying your very own, local Yarp.
+Example install with the excellent [Pow](http://pow.cx):
+
+    curl get.pow.cx | sh      # unless you already have Pow
+    git clone https://github.com/mezis/yarp.git ~/.yarp
+    ln -s ~/.yarp ~/.pow/yarp
+
+Then change your `Gemfile`'s' source line to:
+
+    source ENV.fetch('GEM_SOURCE', 'http://eu.yarp.io')
+
+And add the GEM_SOURCE to your `~/.profile` or `~/.zshrc`:
+
+    export GEM_SOURCE=http://yarp.dev
+
+Why the dance with `ENV.fetch`? Simply because your codebase may be deployed
+or used somewhere lacking `yarp.dev`; this gives you a fallback to another
+source of gems.
+
+
+#### Outside of `bundler`
+
+Edit the sources entry in your `~/.gemrc`:
+
+    ---
+    :sources:
+    - http://yarp.dev
+
+assuming you've followed the Pow instructions above; or use one of the
+`yarp.io` servers instead.
 
 
 ### How it works & Caveats
 
-Yarp caches calls to Rubygem's dependency API, for 24 hours if using `yarp.io`. It redirects all other calls to Rubygems directly.
+Yarp caches calls to Rubygem's dependency API, spec files, and gems for 24
+hours if using `(eu|us).yarp.io`. It redirects all other calls to Rubygems
+directly.
 
-This means that when gems get released or updated, you'll lag a day behind.
+This means that when gems get released or updated, you'll **lag a day
+behind**.
 
-It also means that _downloading_ the gems themselves is not sped up—they're cached in Rubygem's CDN anyways.
 
+### Hacking Yarp
 
-### Running locally
-
-Checkout, make sure you have a [Memcache]() running, configure `.env`, and
+Checkout, make sure you have a [Memcache](http://memcached.org/) running,
+configure `.env`, and
 
     $ bundle exec foreman run rackup
 
-When developping (by default) cache expires after 1 minute.
+Thake a long look at the [`.env`](blob/master/.env) file, as most
+configuration options for Yarp are there.
 
 
 ### License

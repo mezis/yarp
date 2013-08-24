@@ -11,13 +11,14 @@ require 'digest'
 require 'uri'
 require 'net/http'
 
-RUBYGEMS_URL = 'http://rubygems.org'
 
 module Yarp
   class App < Sinatra::Base
+    RUBYGEMS_URL = ENV['YARP_UPSTREAM']
+
     CACHEABLE = %r{
       ^/api/v1/dependencies |
-      ^/(prerelease_)?specs.*\.gz$ |
+      ^/(prerelease_|latest_)?specs.*\.gz$ |
       /quick.*gemspec\.rz$ |
       ^/gems/.*\.gem$
     }x
@@ -41,12 +42,13 @@ module Yarp
   private
 
     Log = Yarp::Logger.new(STDERR)
-    CACHE_TTL = ENV['CACHE_TTL_SECONDS'].to_i
+    CACHE_TTL       = ENV['YARP_CACHE_TTL'].to_i
+    CACHE_THRESHOLD = ENV['YARP_CACHE_THRESHOLD'].to_i
 
     def get_cached_request(request)
       path = full_request_path
       cache_key = Digest::SHA1.hexdigest(path)
-      Log.info "GET <#{path}> (#{cache_key})"
+      Log.debug "GET <#{path}> (#{cache_key})"
 
       headers,payload =
       cache.fetch(cache_key, CACHE_TTL) do
@@ -61,7 +63,6 @@ module Yarp
         [kept_headers, response.body]
       end
 
-      Log.debug headers.inspect
       [200, headers, payload]
     end
 
@@ -103,7 +104,9 @@ module Yarp
         null:     Yarp::Cache::Null.new
       },
       condition: lambda { |key, value|
-        value.first['content-length'].first.to_i <= ENV['YARP_CACHE_THRESHOLD'].to_i ? :memcache : :file
+        value.last.length <= CACHE_THRESHOLD ? 
+          ENV['YARP_SMALL_CACHE'].to_sym : 
+          ENV['YARP_LARGE_CACHE'].to_sym
       })
 
     def cache
