@@ -26,6 +26,11 @@ module Yarp
       get_cached_request(request)
     end
 
+    get '/cache/status.json' do
+      content_type :json
+      Yarp::Cache::File.new.status.to_json
+    end
+
     get '*' do
       path = full_request_path
       Log.info "REDIRECT <#{path}>"

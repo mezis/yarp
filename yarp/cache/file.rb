@@ -41,6 +41,12 @@ module Yarp::Cache
       _set(key, value, ttl)
     end
 
+    def status
+      _edit_metadata do |metadata|
+        return { keys:metadata[:files].size, bytes:metadata[:bytes], size:_max_bytes }
+      end
+    end
+
 
     def flush
       _flush
