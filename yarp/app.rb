@@ -77,7 +77,13 @@ module Yarp
 
     def fetch_with_redirects(uri_str, limit = 10)
       while limit > 0
-        response = Net::HTTP.get_response(URI(uri_str))
+        begin
+          response = Net::HTTP.get_response(URI(uri_str))
+        rescue SocketError => e
+          Log.error("#{SocketError}: #{e.message}")
+          limit  -= 1
+          next
+        end
 
         case response
         when Net::HTTPRedirection then
