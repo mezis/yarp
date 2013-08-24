@@ -1,6 +1,7 @@
 require 'yarp'
 require 'yarp/ext/sliceable_hash'
 require 'yarp/cache/memcache'
+require 'yarp/cache/file'
 require 'yarp/cache/null'
 require 'yarp/cache/tee'
 require 'yarp/logger'
@@ -14,15 +15,15 @@ RUBYGEMS_URL = 'http://rubygems.org'
 
 module Yarp
   class App < Sinatra::Base
+    CACHEABLE = %r{
+      ^/api/v1/dependencies |
+      ^/(prerelease_)?specs.*\.gz$ |
+      /quick.*gemspec\.rz$ |
+    }x
 
-    get '/api/v1/dependencies*' do
+    get CACHEABLE do
       get_cached_request(request)
     end
-
-    get %r{/(prerelease_)?specs.*\.gz|/quick.*gemspec.rz} do
-      get_cached_request(request)
-    end
-
 
     get '*' do
       path = full_request_path
@@ -46,8 +47,6 @@ module Yarp
         uri = URI("#{RUBYGEMS_URL}#{path}")
         Log.debug "FETCH #{uri}"
         response = fetch_with_redirects(uri)
-        Log.debug "  >> #{response.code}"
-        Log.debug "  >> #{response.to_hash}"
         kept_headers = response.to_hash.slice('content-type', 'content-length')
         if response.code != '200'
           return [response.code.to_i, response.to_hash, response.body]
@@ -88,10 +87,11 @@ module Yarp
     Cache = Yarp::Cache::Tee.new(
       caches: {
         memcache: Yarp::Cache::Memcache.new,
+        file:     Yarp::Cache::File.new,
         null:     Yarp::Cache::Null.new
       },
       condition: lambda { |key, value|
-        value.first['content-length'].first.to_i <= 850_000 ? :memcache : :null
+        value.first['content-length'].first.to_i <= ENV['YARP_CACHE_THRESHOLD'].to_i ? :memcache : :file
       })
 
     def cache
