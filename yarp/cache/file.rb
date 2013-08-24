@@ -56,6 +56,7 @@ module Yarp::Cache
     # private
 
     Log = Yarp::Logger.new(STDERR)
+    Lock = Mutex.new
 
     # schema for metadata
     # each file entry maps a key (the filename) to 3 integers: the size, the
@@ -153,13 +154,15 @@ module Yarp::Cache
       return yield @_meta_fd if @_meta_fd
       _meta_path.parent.mkpath
       _meta_path.open(::File::CREAT | ::File::RDWR) do |io|
-        begin
-          @_meta_fd = io
-          io.flock(::File::LOCK_EX)
-          yield @_meta_fd
-        ensure
-          io.flock(::File::LOCK_UN)
-          @_meta_fd = nil
+        Lock.synchronize do
+          begin
+            @_meta_fd = io
+            io.flock(::File::LOCK_EX)
+            yield @_meta_fd
+          ensure
+            io.flock(::File::LOCK_UN)
+            @_meta_fd = nil
+          end
         end
       end
     end
