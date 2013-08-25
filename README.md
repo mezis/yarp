@@ -7,10 +7,33 @@
 On a example medium-sizes application with 34 direct gems dependencies, Yarp
 makes my `bundle` commands up to 80% faster:
 
-|                                | direct Rubygems | with Yarp.io | local Yarp |
-| bundle install (1 gem missing) | 170 s           | 51 s         | 24 s       |
-| bundle update (73 updates)     | 140 s           | 65 s         | 45 s       |
-| bundle update (no change)      | 26 s            | 13 s         | 8.5 s      |
+
+<table>
+    <tr>
+        <td></td>
+        <td>direct Rubygems</td>
+        <td>with `yarp.io`</td>
+        <td>local Yarp</td>
+    </tr>
+    <tr>
+        <td>bundle install (1 gem missing)</td>
+        <td>170 s</td>
+        <td>51 s</td>
+        <td>24 s</td>
+    </tr>
+    <tr>
+        <td>bundle update (73 updates)</td>
+        <td>140 s</td>
+        <td>65 s</td>
+        <td>45 s</td>
+    </tr>
+    <tr>
+        <td>bundle update (no change)</td>
+        <td>26 s</td>
+        <td>13 s</td>
+        <td>8.5 s</td>
+    </tr>
+</table>
 
 Thats a 45% percent win right there. 8 seconds shaved of my deploy times. If
 you deploy 20 times a day to your staging environments and 5 times a day to
