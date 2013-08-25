@@ -87,7 +87,7 @@ configure `.env`, and
 
     $ bundle exec foreman run rackup
 
-Thake a long look at the [`.env`](blob/master/.env) file, as most
+Thake a long look at the [`.env`](.env) file, as most
 configuration options for Yarp are there.
 
 
