@@ -5,6 +5,7 @@ gem 'sinatra'  # lightweight web framework
 gem 'foreman'  # process watchdog
 gem 'rainbows' # threaded webserver
 gem 'dalli'    # memcache adapter
+gem 'fog'	   # S3 Client
 
 gem 'pry'      # a better ruby shell
 gem 'pry-nav'
