@@ -1,3 +1,7 @@
+require 'digest'
+require 'uri'
+require 'net/http'
+
 module Yarp
   class Fetcher
 
@@ -30,7 +34,7 @@ module Yarp
           null:     Yarp::Cache::Null.new
         },
         condition: lambda { |key, value|
-          value.last.length <= CACHE_THRESHOLD ?
+          value.last.length <= ENV['YARP_CACHE_THRESHOLD'].to_i ?
             ENV['YARP_SMALL_CACHE'].to_sym :
             ENV['YARP_LARGE_CACHE'].to_sym
         }
@@ -40,10 +44,10 @@ module Yarp
     private
 
     def async_fetch
-      return if self.path_being_fetched[@path]
-      self.path_being_fetched[@path] = Thread.new(@path, cache_key) do |request_path, key|
-        self.class.cache.fetch(key, CACHE_TTL) do
-          uri = URI("#{RUBYGEMS_URL}#{request_path}")
+      return if self.class.paths_being_fetched[@path]
+      self.class.paths_being_fetched[@path] = Thread.new(@path, cache_key) do |request_path, key|
+        self.class.cache.fetch(key, ENV['YARP_CACHE_TTL'].to_i) do
+          uri = URI("#{ENV['YARP_UPSTREAM']}#{request_path}")
           Log.debug "FETCH #{uri}"
           response = self.class.fetch_with_redirects(uri)
           kept_headers = response.to_hash.slice('content-type', 'content-length')
@@ -52,8 +56,9 @@ module Yarp
           end
           [kept_headers, response.body]
         end
-        self.path_being_fetched.delete(request_path)
+        self.class.paths_being_fetched.delete(request_path)
       end
+      self.class.paths_being_fetched[@path].abort_on_exception = true
     end
 
     def self.fetch_with_redirects(uri_str, limit = 10)
