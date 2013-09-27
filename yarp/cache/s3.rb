@@ -14,48 +14,51 @@ module Yarp::Cache
 
 
     def get(key)
-      #_directory.files.get(key)
-      _read(key)
+      file = _directory.files.get(key)
+      if file
+        value = Marshal.load(file.body)
+        result = [value.first, Base64.strict_decode64(value.last)]
+      end
     end
 
 
     def fetch(key, ttl=nil) # Check if TTL can be setup
       value = get(key) and return value
       value = yield
-      #_upload(key, value, ttl)
-      _save(key, value, ttl)
+      _upload(key, value, ttl)
     end
 
 
     private
 
 
-      def _save(key, value, ttl)
-        file = ::File.open("files/#{key}", 'w')
+      # def _save(key, value, ttl)
+      #   file = ::File.open("files/#{key}", 'w')
 
-        file.write(Marshal.dump(value))
-        file.close
+      #   file.write(Marshal.dump(value))
+      #   file.close
 
-        value
-      end
+      #   value
+      # end
 
 
-      def _read(key)
-        if ::File.exist?("files/#{key}")
-          file = ::File.open("files/#{key}", 'r')
+      # def _read(key)
+      #   if ::File.exist?("files/#{key}")
+      #     file = ::File.open("files/#{key}", 'r')
 
-          value = Marshal.load(file.read)
+      #     value = Marshal.load(file.read)
 
-          value
-        end
-      end
+      #     value
+      #   end
+      # end
 
 
       def _connection
         @_connection ||= Fog::Storage.new(
           :provider              => 'AWS',
           :aws_access_key_id     => ENV['AWS_ACCESS_KEY_ID'],
-          :aws_secret_access_key => ENV['AWS_SECRET_ACCESS_KEY']
+          :aws_secret_access_key => ENV['AWS_SECRET_ACCESS_KEY'],
+          :region                => 'eu-west-1'
         )
       end
 
@@ -69,10 +72,14 @@ module Yarp::Cache
 
 
       def _upload(key, value, ttl)
+        headers, body = value
+        saving_value = [headers, Base64.strict_encode64(body)]
+
         file = _directory.files.create(
           :key    => key,
-          :body   => value.respond_to?(:first) ? Marshal.dump(value) : value
+          :body   => Marshal.dump(saving_value)
         )
+        value
       end
 
 
