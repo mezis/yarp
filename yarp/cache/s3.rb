@@ -31,16 +31,8 @@ module Yarp::Cache
 
 
       def _save(key, value, ttl)
-        # Check if we're dealing with a binary or not
-        if value.last.encoding.to_s == "ASCII-8BIT"
-          file = ::File.open("files/#{key}.gz", 'wb')
-          file.write(value.last)
-          file.close
-        end
-
-        value_for_saving = value.
-
         file = ::File.open("files/#{key}", 'w')
+
         file.write(Marshal.dump(value))
         file.close
 
@@ -51,14 +43,8 @@ module Yarp::Cache
       def _read(key)
         if ::File.exist?("files/#{key}")
           file = ::File.open("files/#{key}", 'r')
+
           value = Marshal.load(file.read)
-
-          if ::File.exist?("files/#{key}.gz")
-            file = ::File.open("files/#{key}.gz", 'rb')
-            value.last.replace(file.read)
-            file.close
-          end
-
 
           value
         end
