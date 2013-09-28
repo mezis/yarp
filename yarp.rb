@@ -7,5 +7,4 @@ require 'yarp/cache/tee'
 require 'yarp/logger'
 require 'yarp/fetcher'
 
-
 Yarp::Log = Yarp::Logger.new(STDERR)
