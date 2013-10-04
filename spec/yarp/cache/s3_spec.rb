@@ -1,4 +1,5 @@
-require_relative '../../spec_helper'
+require 'spec_helper'
+require 'yarp/cache/s3'
 
 module Yarp
   module Cache
@@ -12,6 +13,7 @@ module Yarp
         ENV['AWS_BUCKET_NAME']       = 'yarp_test'
 
         Fog.mock!
+        Fog::Mock.reset
 
         @connection = Fog::Storage.new({
           :provider              => 'AWS',
@@ -32,19 +34,28 @@ module Yarp
       describe '#fetch' do
 
         context "when a key is saved" do
-
-          it "should not save a key if it is saved" do
+          before(:each) do
             @directory.files.create(
               :key    => '123456',
+              # NDU2 = '456' in Base64
               :body   => Marshal.dump(['123', 'NDU2'])
             )
+          end
 
+          it "should return the key value from its persisted file" do
+            value = s3_cache.fetch('123456')
+            value.should eql(['123', '456'])
+          end
+
+          it "should not save a key if it is already there" do
             s3_cache.fetch('123456') { ['123', 'NDU2'] }
-
             @directory.should have(1).files
           end
 
-          it "should return the key value from its persisted file"
+          it "should not overwrite a key if it is already there" do
+            value = s3_cache.fetch('123456') { ['321', 'NjU0'] }
+            value.should eql(['123', '456'])
+          end
 
         end
 
