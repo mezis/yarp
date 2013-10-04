@@ -32,27 +32,6 @@ module Yarp::Cache
     private
 
 
-      # def _save(key, value, ttl)
-      #   file = ::File.open("files/#{key}", 'w')
-
-      #   file.write(Marshal.dump(value))
-      #   file.close
-
-      #   value
-      # end
-
-
-      # def _read(key)
-      #   if ::File.exist?("files/#{key}")
-      #     file = ::File.open("files/#{key}", 'r')
-
-      #     value = Marshal.load(file.read)
-
-      #     value
-      #   end
-      # end
-
-
       def _connection
         @_connection ||= Fog::Storage.new(
           :provider              => 'AWS',
