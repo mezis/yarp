@@ -20,6 +20,7 @@ module Yarp::Cache
       end
     end
 
+
     # TTL is not supported natively by S3
     def fetch(key, ttl=nil)
       value = get(key) and return value
