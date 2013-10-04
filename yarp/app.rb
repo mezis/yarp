@@ -1,18 +1,16 @@
 require 'yarp'
-require 'yarp/logger'
-require 'yarp/cache'
-require 'yarp/cache/tee'
+require 'yarp/ext/sliceable_hash'
 require 'yarp/cache/memcache'
 require 'yarp/cache/file'
-require 'yarp/cache/null'
 require 'yarp/cache/s3'
+require 'yarp/cache/null'
+require 'yarp/cache/tee'
+require 'yarp/logger'
 
 require 'sinatra/base'
 require 'digest'
 require 'uri'
 require 'net/http'
-
-require 'active_support/core_ext/hash'
 
 module Yarp
   class App < Sinatra::Base
