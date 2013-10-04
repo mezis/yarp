@@ -5,7 +5,7 @@ require 'pry'
 
 
 module Yarp::Cache
-  # A cache store implementation which stores everything on the filesystem.
+  # A cache store implementation which stores everything on S3.
   #
   class S3 < Base
 
@@ -21,8 +21,8 @@ module Yarp::Cache
       end
     end
 
-
-    def fetch(key, ttl=nil) # Check if TTL can be setup
+    # TTL is not supported natively by S3
+    def fetch(key, ttl=nil)
       value = get(key) and return value
       value = yield
       _upload(key, value, ttl)
