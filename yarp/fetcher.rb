@@ -4,6 +4,7 @@ require 'net/http'
 require 'thread'
 require 'yarp/cache'
 require 'yarp/fetcher/queue'
+require 'yarp/fetcher/spawner'
 
 module Yarp
   class Fetcher

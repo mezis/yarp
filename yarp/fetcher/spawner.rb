@@ -4,6 +4,7 @@ require 'yarp/fetcher'
 module Yarp
   class Fetcher
     module Spawner
+
       extend self
       FETCHING_THREADS = 4
 
