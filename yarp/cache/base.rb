@@ -1,15 +1,15 @@
-require 'yarp'
+module Yarp
+  module Cache
+    class Base
 
-module Yarp::Cache
-  class Base
+      def fetch(key, ttl=nil)
+        raise NotImplementedError("#{self.class.name} is abstract")
+      end
 
-    def fetch(key, ttl=nil)
-      raise NotImplementedError("#{self.class.name} is abstract")
+      def get(key)
+        raise NotImplementedError("#{self.class.name} is abstract")
+      end
+
     end
-
-    def get(key)
-      raise NotImplementedError("#{self.class.name} is abstract")
-    end
-
   end
 end
