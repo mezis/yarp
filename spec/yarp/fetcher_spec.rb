@@ -35,7 +35,7 @@ describe Yarp::Fetcher do
         to_return(:status => 200, :body => "a", :headers => { 'content-type' => '*/*', 'content-length' => '1' })
     end
 
-    it 'sets cache' do
+    it 'fetches from upstream and sets cache' do
       Yarp::Cache.instance.should_receive(:fetch) do |cache_key, ttl, &block|
         cache_key.should == '06f74e7966946c1647930a899440755839f74e3e'
         block.call.should == [{"content-type"=>["*/*"], "content-length"=>["1"]}, "a"]

@@ -8,7 +8,7 @@ module Yarp
       include Singleton
       extend Forwardable
 
-      def_delegators :@queue, :pop
+      def_delegators :@queue, :pop, :length
 
       def initialize
         @queue = ::Queue.new
@@ -23,6 +23,10 @@ module Yarp
 
       def done(fetcher)
         @queued_paths.delete(fetcher.path)
+      end
+
+      def clear
+        initialize
       end
     end
   end
