@@ -1,7 +1,6 @@
 require 'yarp/cache/base'
-require 'yarp/logger'
+# require 'yarp/logger'
 require 'fog'
-require 'pry'
 
 
 module Yarp::Cache
