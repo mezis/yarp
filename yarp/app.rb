@@ -1,4 +1,5 @@
 require 'yarp'
+require 'yarp/fetcher'
 require 'sinatra/base'
 
 module Yarp

@@ -1,15 +1,17 @@
 require 'yarp/cache/base'
 
-module Yarp::Cache
-  class Null
+module Yarp
+  class Cache
+    class Null
 
-    def fetch(key, ttl=nil)
-      yield
+      def fetch(key, ttl=nil)
+        yield
+      end
+
+      def get(key)
+        nil
+      end
+
     end
-
-    def get(key)
-      nil
-    end
-
   end
 end
