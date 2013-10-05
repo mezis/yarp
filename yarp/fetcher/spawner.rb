@@ -18,8 +18,11 @@ module Yarp
         thread = Thread.new do
           begin
             while fetcher = Queue.instance.pop
-              fetcher.fetch_from_upstream
-              Queue.instance.done(fetcher)
+              begin
+                fetcher.fetch_from_upstream
+              ensure
+                Queue.instance.done(fetcher)
+              end
             end
           rescue Exception => e
             spawn_fetching_thread

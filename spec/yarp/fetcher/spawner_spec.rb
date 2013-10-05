@@ -53,7 +53,7 @@ describe Yarp::Fetcher::Spawner do
           # waiting
         end
       end
-      Yarp::Fetcher::Queue.instance << stub(:path => 'a') # Stub doesn't respond to #fetch_from_upstream
+      Yarp::Fetcher::Queue.instance << double(:path => 'a') # Stub doesn't respond to #fetch_from_upstream
       expect {
         subject.join
       }.to raise_error(RSpec::Mocks::MockExpectationError)
