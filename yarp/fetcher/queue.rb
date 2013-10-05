@@ -16,8 +16,10 @@ module Yarp
       end
 
       def <<(fetcher)
-        return nil if @queued_paths.include?(fetcher.path)
-        @queued_paths << fetcher.path
+        Mutex.new.synchronize do
+          return nil if @queued_paths.include?(fetcher.path)
+          @queued_paths << fetcher.path
+        end
         @queue << fetcher
       end
 

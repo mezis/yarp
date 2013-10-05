@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'yarp/fetcher/spawner'
+require 'timeout'
 
 describe Yarp::Fetcher::Spawner do
 
@@ -12,7 +13,6 @@ describe Yarp::Fetcher::Spawner do
       subject.should_receive(:spawn_fetching_thread).exactly(n).times
       subject.spawn_fetching_threads
     end
-
   end
 
   describe '.spawn_fetching_thread' do
@@ -26,22 +26,38 @@ describe Yarp::Fetcher::Spawner do
       Yarp::Fetcher::Queue.instance.clear
     end
 
-    subject { Yarp::Fetcher::Spawner.spawn_fetching_thread }
-
-    it 'should take a job from the queue' do
-      Yarp::Fetcher::Queue.instance << fetcher
-      Yarp::Fetcher::Queue.instance.should_receive(:pop).once
-      fetcher.should_receive(:fetch_from_upstream)
-      subject.join
+    subject do
+      Yarp::Fetcher::Spawner.spawn_fetching_thread.tap do |thread|
+        thread.abort_on_exception = true
+      end
     end
 
-    # it 'should run the fetcher relevant method' do
-    #   fetcher.should_receive(:fetch_from_upstream)
-    #   Yarp::Fetcher::Queue.instance << fetcher
-    #   subject.join
-    # end
+    it 'it processes fetchers as they arrive in queue' do
+      subject
+      fetcher.should_receive(:fetch_from_upstream)
+      Yarp::Fetcher::Queue.instance << fetcher
 
+      # Wait until thread picks up from queue
+      Timeout::timeout(1) do
+        until Yarp::Fetcher::Queue.instance.length == 0
+          # waiting
+        end
+      end
+      subject.kill if subject.alive?
+    end
+
+    it 'spawns a thread which gives birth to new thread when dying' do
+      # Wait until other threads die
+      Timeout::timeout(1) do
+        until Thread.list.length == 2 # Main thread + timeout thread
+          # waiting
+        end
+      end
+      Yarp::Fetcher::Queue.instance << stub(:path => 'a') # Stub doesn't respond to #fetch_from_upstream
+      expect {
+        subject.join
+      }.to raise_error(RSpec::Mocks::MockExpectationError)
+      Thread.list.count.should == 2
+    end
   end
-
-
 end
