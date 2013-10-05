@@ -1,7 +1,6 @@
 $:.unshift File.expand_path('../..', __FILE__)
 require 'yarp'
 require 'webmock/rspec'
-require 'stringio'
 require 'pry'
 
 # Load env variables with foreman
