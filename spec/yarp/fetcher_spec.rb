@@ -6,7 +6,7 @@ describe Yarp::Fetcher do
 
   describe '.fetch' do
     it 'returns value stored by cache' do
-      Yarp::Cache.instance.stub(:get).and_return('abc')
+      Yarp::ConcreteCache.instance.stub(:get).and_return('abc')
       subject.should == 'abc'
     end
 
@@ -16,7 +16,7 @@ describe Yarp::Fetcher do
       end
 
       it 'uses apropriate cache key' do
-        Yarp::Cache.instance.should_receive(:get).with('06f74e7966946c1647930a899440755839f74e3e').at_least(:once)
+        Yarp::ConcreteCache.instance.should_receive(:get).with('06f74e7966946c1647930a899440755839f74e3e').at_least(:once)
         subject
       end
 
@@ -36,7 +36,7 @@ describe Yarp::Fetcher do
     end
 
     it 'fetches from upstream and sets cache' do
-      Yarp::Cache.instance.should_receive(:fetch) do |cache_key, ttl, &block|
+      Yarp::ConcreteCache.instance.should_receive(:fetch) do |cache_key, ttl, &block|
         cache_key.should == '06f74e7966946c1647930a899440755839f74e3e'
         block.call.should == [{"content-type"=>["*/*"], "content-length"=>["1"]}, "a"]
       end.and_return('abc')

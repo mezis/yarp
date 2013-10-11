@@ -7,7 +7,7 @@ require 'yarp/cache/tee'
 require 'yarp/ext/sliceable_hash'
 
 module Yarp
-  class Cache
+  class ConcreteCache
     include Singleton
     extend Forwardable
 

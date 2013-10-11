@@ -2,7 +2,7 @@ require 'digest'
 require 'uri'
 require 'net/http'
 require 'thread'
-require 'yarp/cache'
+require 'yarp/concrete_cache'
 require 'yarp/fetcher/queue'
 require 'yarp/fetcher/spawner'
 
@@ -17,14 +17,14 @@ module Yarp
     end
 
     def fetch
-      cached_value = Yarp::Cache.instance.get(cache_key)
+      cached_value = Yarp::ConcreteCache.instance.get(cache_key)
       return cached_value if cached_value
       Yarp::Fetcher::Queue.instance << self
       return
     end
 
     def fetch_from_upstream
-      Yarp::Cache.instance.fetch(cache_key, ENV['YARP_CACHE_TTL'].to_i) do
+      Yarp::ConcreteCache.instance.fetch(cache_key, ENV['YARP_CACHE_TTL'].to_i) do
         Log.debug "FETCH #{@path}"
         response = fetch_with_redirects
         kept_headers = response.to_hash.slice('content-type', 'content-length')
