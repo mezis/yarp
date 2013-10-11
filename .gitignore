@@ -1,2 +1,4 @@
 tmp/
 log/
+.ruby-version
+.env

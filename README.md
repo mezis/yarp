@@ -1,5 +1,7 @@
 ## Yet Another Rubygems Proxy
 
+[![Build Status](https://travis-ci.org/mezis/yarp.png?branch=master)](https://travis-ci.org/mezis/yarp)
+
 > Yarp is a small [Sinatra](http://www.sinatrarb.com) app that makes your
 > [bundler](http://bundler.io) faster. You'll love it if you update your
 > apps a lot... or simply deploy a lot.
