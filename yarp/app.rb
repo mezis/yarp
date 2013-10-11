@@ -2,6 +2,7 @@ require 'yarp'
 require 'yarp/ext/sliceable_hash'
 require 'yarp/cache/memcache'
 require 'yarp/cache/file'
+require 'yarp/cache/s3'
 require 'yarp/cache/null'
 require 'yarp/cache/tee'
 require 'yarp/logger'
@@ -10,7 +11,6 @@ require 'sinatra/base'
 require 'digest'
 require 'uri'
 require 'net/http'
-
 
 module Yarp
   class App < Sinatra::Base
@@ -101,11 +101,12 @@ module Yarp
       caches: {
         memcache: Yarp::Cache::Memcache.new,
         file:     Yarp::Cache::File.new,
-        null:     Yarp::Cache::Null.new
+        null:     Yarp::Cache::Null.new,
+        s3:       Yarp::Cache::S3.new
       },
       condition: lambda { |key, value|
-        value.last.length <= CACHE_THRESHOLD ? 
-          ENV['YARP_SMALL_CACHE'].to_sym : 
+        value.last.length <= CACHE_THRESHOLD ?
+          ENV['YARP_SMALL_CACHE'].to_sym :
           ENV['YARP_LARGE_CACHE'].to_sym
       })
 
