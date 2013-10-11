@@ -4,6 +4,7 @@ require 'yarp/cache/memcache'
 require 'yarp/cache/file'
 require 'yarp/cache/null'
 require 'yarp/cache/tee'
+require 'yarp/cache/s3'
 require 'yarp/ext/sliceable_hash'
 
 module Yarp
@@ -18,6 +19,7 @@ module Yarp
         caches: {
           memcache: Yarp::Cache::Memcache.new,
           file:     Yarp::Cache::File.new,
+          s3:       Yarp::Cache::S3.new,
           null:     Yarp::Cache::Null.new
         },
         condition: lambda { |key, value|
