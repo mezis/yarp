@@ -14,4 +14,7 @@ gem 'newrelic_rpm' # app monitoring
 
 gem 'term-ansicolor'
 
-gem 'rspec'
+group :test do
+  gem 'rspec'
+  gem 'webmock'
+end
