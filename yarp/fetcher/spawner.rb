@@ -19,10 +19,8 @@ module Yarp
           begin
             while fetcher = Queue.instance.pop
               begin
-                Yarp::Log.info "Something got here!"
                 fetcher.fetch_from_upstream
               ensure
-                Yarp::Log.info "We are in the ensure and we cleanup!"
                 Queue.instance.done(fetcher)
               end
             end
