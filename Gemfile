@@ -12,3 +12,8 @@ gem 'pry-nav'
 gem 'newrelic_rpm' # app monitoring
 
 gem 'term-ansicolor'
+
+group :test do
+  gem 'rspec'
+  gem 'webmock'
+end

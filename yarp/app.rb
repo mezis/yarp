@@ -1,20 +1,9 @@
 require 'yarp'
-require 'yarp/ext/sliceable_hash'
-require 'yarp/cache/memcache'
-require 'yarp/cache/file'
-require 'yarp/cache/null'
-require 'yarp/cache/tee'
-require 'yarp/logger'
-
+require 'yarp/fetcher'
 require 'sinatra/base'
-require 'digest'
-require 'uri'
-require 'net/http'
-
 
 module Yarp
   class App < Sinatra::Base
-    RUBYGEMS_URL = ENV['YARP_UPSTREAM']
 
     CACHEABLE = %r{
       ^/api/v1/dependencies |
@@ -36,36 +25,20 @@ module Yarp
       path = full_request_path
       Log.info "REDIRECT <#{path}>"
       # $stderr.flush
-      redirect "#{RUBYGEMS_URL}#{path}"
+      redirect "#{ENV['YARP_UPSTREAM']}#{path}"
     end
 
   private
-
-    Log = Yarp::Logger.new(STDERR)
-    CACHE_TTL       = ENV['YARP_CACHE_TTL'].to_i
-    CACHE_THRESHOLD = ENV['YARP_CACHE_THRESHOLD'].to_i
-
     def get_cached_request(request)
-      path = full_request_path
-      cache_key = Digest::SHA1.hexdigest(path)
-      Log.debug "GET <#{path}> (#{cache_key})"
-
-      headers,payload =
-      cache.fetch(cache_key, CACHE_TTL) do
-        uri = URI("#{RUBYGEMS_URL}#{path}")
-        Log.debug "FETCH #{uri}"
-        response = fetch_with_redirects(uri)
-        kept_headers = response.to_hash.slice('content-type', 'content-length')
-        if response.code != '200'
-          return [response.code.to_i, response.to_hash, response.body]
-        end
-
-        [kept_headers, response.body]
+      Log.debug "GET <#{full_request_path}>"
+      cached_value = Yarp::Fetcher.new(full_request_path).fetch
+      if cached_value
+        [200, *cached_value]
+      else
+        Log.info "REDIRECT <#{full_request_path}>"
+        redirect "#{ENV['YARP_UPSTREAM']}#{full_request_path}"
       end
-
-      [200, headers, payload]
     end
-
 
     def full_request_path
       if request.query_string.length > 0
@@ -73,44 +46,6 @@ module Yarp
       else
         request.path
       end
-    end
-
-
-    def fetch_with_redirects(uri_str, limit = 10)
-      while limit > 0
-        begin
-          response = Net::HTTP.get_response(URI(uri_str))
-        rescue SocketError => e
-          Log.error("#{SocketError}: #{e.message}")
-          limit  -= 1
-          next
-        end
-
-        case response
-        when Net::HTTPRedirection then
-          uri_str = response['location']
-          limit  -= 1
-        else
-          return response
-        end
-      end
-      raise RuntimeError('too many HTTP redirects') if limit == 0
-    end
-
-    Cache = Yarp::Cache::Tee.new(
-      caches: {
-        memcache: Yarp::Cache::Memcache.new,
-        file:     Yarp::Cache::File.new,
-        null:     Yarp::Cache::Null.new
-      },
-      condition: lambda { |key, value|
-        value.last.length <= CACHE_THRESHOLD ? 
-          ENV['YARP_SMALL_CACHE'].to_sym : 
-          ENV['YARP_LARGE_CACHE'].to_sym
-      })
-
-    def cache
-      Cache
     end
   end
 end
