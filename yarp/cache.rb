@@ -11,7 +11,7 @@ module Yarp
     include Singleton
     extend Forwardable
 
-    def_delegators :@cache, :get, :fetch, :clear
+    def_delegators :@cache, :get, :fetch
 
     def initialize
       @cache = Yarp::Cache::Tee.new(

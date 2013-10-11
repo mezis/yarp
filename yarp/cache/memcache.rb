@@ -13,10 +13,6 @@ module Yarp
         _connection.get(key)
       end
 
-      def clear
-        _connection.flush_all
-      end
-
       private
 
       def _connection

@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'yarp/fetcher'
 
 describe Yarp::Fetcher do
-  subject { described_class.fetch('/abc') }
+  subject { described_class.new('/abc').fetch }
 
   describe '.fetch' do
     it 'returns value stored by cache' do

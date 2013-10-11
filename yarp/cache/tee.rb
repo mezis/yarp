@@ -36,9 +36,6 @@ module Yarp
         _caches[cache_name].fetch(key, ttl) { value }
       end
 
-      def clear
-        @_caches.each{ |cache| cache.clear rescue nil }
-      end
 
     end
   end

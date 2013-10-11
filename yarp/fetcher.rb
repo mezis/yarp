@@ -12,10 +12,6 @@ module Yarp
 
     attr_reader :path
 
-    def self.fetch(path)
-      new(path).fetch
-    end
-
     def initialize(path)
       @path = path
     end

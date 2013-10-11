@@ -31,7 +31,7 @@ module Yarp
   private
     def get_cached_request(request)
       Log.debug "GET <#{full_request_path}>"
-      cached_value = Yarp::Fetcher.fetch(full_request_path)
+      cached_value = Yarp::Fetcher.new(full_request_path).fetch
       if cached_value
         [200, *cached_value]
       else

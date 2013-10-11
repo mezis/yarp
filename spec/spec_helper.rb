@@ -2,12 +2,9 @@ $:.unshift File.expand_path('../..', __FILE__)
 require 'yarp'
 require 'webmock/rspec'
 require 'pry'
+require 'dotenv'
 
-# Load env variables with foreman
-require 'foreman/engine'
-Foreman::Engine.new.load_env('.env').each_pair do |key, value|
-  ENV[key] = value
-end
+Dotenv.load
 
 ENV['YARP_FILECACHE_PATH'] = 'tmp/test_cache'
 Yarp::Log.sev_threshold = Logger::FATAL
