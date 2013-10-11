@@ -16,7 +16,7 @@ module Yarp
       @path = path
     end
 
-    def fetch
+    def perform
       cached_value = Yarp::ConcreteCache.instance.get(cache_key)
       return cached_value if cached_value
       Yarp::Fetcher::Queue.instance << self

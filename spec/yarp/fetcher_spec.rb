@@ -2,9 +2,9 @@ require 'spec_helper'
 require 'yarp/fetcher'
 
 describe Yarp::Fetcher do
-  subject { described_class.new('/abc').fetch }
+  subject { described_class.new('/abc').perform }
 
-  describe '.fetch' do
+  describe '.perform' do
     it 'returns value stored by cache' do
       Yarp::ConcreteCache.instance.stub(:get).and_return('abc')
       subject.should == 'abc'
