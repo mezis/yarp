@@ -14,6 +14,9 @@ module Yarp
 
     def_delegators :@cache, :get, :fetch
 
+    # This method involves all store strategies, even the ones we don't want
+    # to get called during the fetching process.
+    # TODO: Make sure caches only store strategies we care about
     def initialize
       @cache = Yarp::Cache::Tee.new(
         caches: {
