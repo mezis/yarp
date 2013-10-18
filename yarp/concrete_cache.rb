@@ -12,6 +12,13 @@ module Yarp
     include Singleton
     extend Forwardable
 
+    AVAILABLE_CACHES = {
+      memcache: Yarp::Cache::Memcache.new,
+      file:     Yarp::Cache::File.new,
+      s3:       Yarp::Cache::S3.new,
+      null:     Yarp::Cache::Null.new
+    }
+
     def_delegators :@cache, :get, :fetch
 
     # This method involves all store strategies, even the ones we don't want
@@ -19,12 +26,7 @@ module Yarp
     # TODO: Make sure caches only store strategies we care about
     def initialize
       @cache = Yarp::Cache::Tee.new(
-        caches: {
-          memcache: Yarp::Cache::Memcache.new,
-          file:     Yarp::Cache::File.new,
-          s3:       Yarp::Cache::S3.new,
-          null:     Yarp::Cache::Null.new
-        },
+        caches: get_caches,
         condition: lambda { |key, value|
           value.last.length <= ENV['YARP_CACHE_THRESHOLD'].to_i ?
             ENV['YARP_SMALL_CACHE'].to_sym :
@@ -32,5 +34,20 @@ module Yarp
         }
       )
     end
+
+    private
+
+      def get_caches
+        Hash[small_cache, AVAILABLE_CACHES[small_cache], large_cache, AVAILABLE_CACHES[large_cache]]
+      end
+
+      def small_cache
+        ENV['YARP_SMALL_CACHE'] ? ENV['YARP_SMALL_CACHE'].to_sym : :null
+      end
+
+      def large_cache
+        ENV['YARP_LARGE_CACHE'] ? ENV['YARP_LARGE_CACHE'].to_sym : :null
+      end
+
   end
 end

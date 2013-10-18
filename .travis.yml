@@ -5,4 +5,4 @@ script: bundle exec rspec spec
 services:
   - memcached
 env:
-  - YARP_UPSTREAM=http://eu.yarp.io MEMCACHIER_SERVERS=localhost
+  - YARP_UPSTREAM=http://eu.yarp.io
