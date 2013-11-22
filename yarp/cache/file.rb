@@ -5,7 +5,7 @@ require 'uri'
 
 module Yarp::Cache
   # A cache store implementation which stores everything on the filesystem.
-  # 
+  #
   class File < Base
     attr_reader :_cache_path
     attr_reader :_max_bytes

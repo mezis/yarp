@@ -7,37 +7,8 @@ module Yarp
 
       let(:s3_cache) { Yarp::Cache::S3.new }
 
-      let(:connection) do
-        Fog::Storage.new({
-          :provider              => 'AWS',
-          :aws_access_key_id     => ENV['AWS_ACCESS_KEY_ID'],
-          :aws_secret_access_key => ENV['AWS_SECRET_ACCESS_KEY']
-        })
-      end
-
-      let(:directory) do
-        connection.directories.create(
-          :key    => ENV['AWS_BUCKET_NAME'],
-          :public => true
-        )
-      end
-
-      before(:all) do
-        ENV['AWS_ACCESS_KEY_ID']     = '123'
-        ENV['AWS_SECRET_ACCESS_KEY'] = '123'
-        ENV['AWS_BUCKET_NAME']       = 'yarp_test'
-
-        Fog.mock!
-      end
-
-      before(:each) do
-        Fog::Mock.reset
-
-        Yarp::Cache::S3.any_instance.stub(
-          :_connection => connection,
-          :_directory  => directory
-        )
-      end
+      let(:connection) { s3_cache.send(:_connection) }
+      let(:directory) { s3_cache.send(:_directory) }
 
       describe '#fetch' do
 

@@ -8,9 +8,7 @@ module Yarp::Cache
   #
   class S3 < Base
 
-
     # Log = Yarp::Logger.new(STDERR)
-
 
     def get(key)
       file = _directory.files.get(key)
@@ -20,7 +18,6 @@ module Yarp::Cache
       end
     end
 
-
     # TTL is not supported natively by S3
     def fetch(key, ttl=nil)
       value = get(key) and return value
@@ -28,9 +25,7 @@ module Yarp::Cache
       _upload(key, value, ttl)
     end
 
-
     private
-
 
       def _connection
         @_connection ||= Fog::Storage.new(
@@ -41,14 +36,12 @@ module Yarp::Cache
         )
       end
 
-
       def _directory
         @_directory ||= _connection.directories.new(
           :key    => ENV['AWS_BUCKET_NAME'],
           :public => true
         )
       end
-
 
       def _upload(key, value, ttl)
         headers, body = value
@@ -60,7 +53,6 @@ module Yarp::Cache
         )
         value
       end
-
 
   end
 end
