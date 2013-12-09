@@ -30,8 +30,7 @@ describe Yarp::Fetcher do
   describe '#fetch_from_upstrean' do
 
     before :each do
-      stub_request(:get, "http://eu.yarp.io/abc").
-        with(:headers => {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Host'=>'eu.yarp.io', 'User-Agent'=>'Ruby'}).
+      stub_request(:get, "http://yarp.example.com/abc").
         to_return(:status => 200, :body => "a", :headers => { 'content-type' => '*/*', 'content-length' => '1' })
     end
 

@@ -18,6 +18,7 @@ RSpec.configure do |config|
     ENV['AWS_ACCESS_KEY_ID']     = '123'
     ENV['AWS_SECRET_ACCESS_KEY'] = '123'
     ENV['AWS_BUCKET_NAME']       = 'yarp_test'
+    ENV['YARP_UPSTREAM']         = 'http://yarp.example.com'
 
     Fog.mock!
   end
