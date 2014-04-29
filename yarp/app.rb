@@ -11,20 +11,26 @@ require 'digest'
 require 'uri'
 require 'net/http'
 
-
 module Yarp
   class App < Sinatra::Base
     RUBYGEMS_URL = ENV['YARP_UPSTREAM']
 
-    CACHEABLE = %r{
+    CACHEABLE_SHORT = %r{
       ^/api/v1/dependencies |
-      ^/(prerelease_|latest_)?specs.*\.gz$ |
+      ^/(prerelease_|latest_)?specs.*\.gz$
+    }x
+
+    CACHEABLE_LONG = %r{
       /quick.*gemspec\.rz$ |
       ^/gems/.*\.gem$
     }x
 
-    get CACHEABLE do
-      get_cached_request(request)
+    get CACHEABLE_SHORT do
+      get_cached_request(request, CACHE_TTL)
+    end
+
+    get CACHEABLE_LONG do
+      get_cached_request(request, 365*86400)
     end
 
     get '/cache/status.json' do
@@ -45,24 +51,25 @@ module Yarp
     CACHE_TTL       = ENV['YARP_CACHE_TTL'].to_i
     CACHE_THRESHOLD = ENV['YARP_CACHE_THRESHOLD'].to_i
 
-    def get_cached_request(request)
+    def get_cached_request(request, ttl)
       path = full_request_path
       cache_key = Digest::SHA1.hexdigest(path)
       Log.debug "GET <#{path}> (#{cache_key})"
 
       headers,payload =
-      cache.fetch(cache_key, CACHE_TTL) do
+      cache.fetch(cache_key, ttl) do
         uri = URI("#{RUBYGEMS_URL}#{path}")
         Log.debug "FETCH #{uri}"
         response = fetch_with_redirects(uri)
-        kept_headers = response.to_hash.slice('content-type', 'content-length')
+        
+        kept_headers = response.to_hash.slice('content-type', 'server', 'date')
         if response.code != '200'
-          return [response.code.to_i, response.to_hash, response.body]
+          return [response.code.to_i, response.to_hash, response.body.to_s]
         end
 
         [kept_headers, response.body]
       end
-
+      
       [200, headers, payload]
     end
 
