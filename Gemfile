@@ -1,5 +1,5 @@
-source 'http://rubygems.org'
-ruby '2.0.0'
+source ENV.fetch('GEM_SOURCE', 'http://rubygems.org')
+ruby '2.1.1'
 
 gem 'sinatra'  # lightweight web framework
 gem 'foreman'  # process watchdog
