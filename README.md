@@ -4,6 +4,9 @@
 > [bundler](http://bundler.io) faster. You'll love it if you update your
 > apps a lot... or simply deploy a lot.
 
+[![](http://img.shields.io/badge/Support%20Yarp-Gratipay-blue.svg)](https://gratipay.com/mezis/)
+
+
 On a example medium-sizes application with 34 direct gems dependencies, Yarp
 makes my `bundle` commands up to 80% faster:
 
