@@ -58,6 +58,11 @@ By one of the following:
 
 You're done.
 
+If you want/need SSL connections, you can use the Heroku URLs:
+
+    source 'https://yarp-us.herokuapp.com'
+    source 'https://yarp-eu.herokuapp.com'
+
 
 #### Your own local Yarp
 
