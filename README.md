@@ -121,10 +121,10 @@ configuration options for Yarp are there.
 
 ### Disable dotenv file
 
-For this you need use additional ENV variable `YARP_DISABLE_DOTENV=1`
-You can provide ENV variables via bash from any file.
-For example:
-   $ export $(cat /any_path/.rbenv-vars | xargs) && export YARP_DISABLE_DOTENV=1 && bundle exec rainbows -c rainbows.rb
+For this you need use additional ENV variable `YARP_DISABLE_DOTENV=1`.
+You can provide ENV variables via bash from any file, for example:
+
+    $ export $(cat /any_path/.rbenv-vars | xargs) && export YARP_DISABLE_DOTENV=1 && bundle exec rainbows -c rainbows.rb
 
 
 ### License
