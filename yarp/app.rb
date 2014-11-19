@@ -106,7 +106,7 @@ module Yarp
 
     Cache = Yarp::Cache::Tee.new(
       caches: {
-        memcache: ENV['MEMCACHIER_SERVERS'].present? ? Yarp::Cache::Memcache.new : Yarp::Cache::File.new,
+        memcache: ENV['MEMCACHIER_SERVERS'].empty? ? Yarp::Cache::Memcache.new : Yarp::Cache::File.new,
         file:     Yarp::Cache::File.new,
         null:     Yarp::Cache::Null.new
       },
