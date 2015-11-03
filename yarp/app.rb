@@ -59,8 +59,13 @@ module Yarp
       headers,payload =
       cache.fetch(cache_key, ttl) do
         uri = URI("#{RUBYGEMS_URL}#{path}")
+        upstream_auth = false
+        if ENV.has_key? 'YARP_UPSTREAM_USER' and ! ENV['YARP_UPSTREAM_USER'].empty? and ENV.has_key? 'YARP_UPSTREAM_PASS' and ! ENV['YARP_UPSTREAM_PASS'].empty?
+          Log.debug "Setting HTTP basic auth credentials for upstream (user: #{ENV['YARP_UPSTREAM_USER']} pass: ***)"
+          upstream_auth = true
+        end
         Log.debug "FETCH #{uri}"
-        response = fetch_with_redirects(uri)
+        response = fetch_with_redirects(uri, upstream_auth)
         
         kept_headers = response.to_hash.slice('content-type', 'server', 'date')
         if response.code != '200'
@@ -83,10 +88,16 @@ module Yarp
     end
 
 
-    def fetch_with_redirects(uri_str, limit = 10)
+    def fetch_with_redirects(uri_str, upstream_auth, limit = 10)
       while limit > 0
         begin
           response = Net::HTTP.get_response(URI(uri_str))
+          uri = URI(uri_str)
+          req = Net::HTTP::Get.new(uri)
+          if upstream_auth == true
+            req.basic_auth ENV['YARP_UPSTREAM_USER'], ENV['YARP_UPSTREAM_PASS']
+          end
+          response = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => uri.scheme == 'https') { |http| http.request(req) }
         rescue SocketError => e
           Log.error("#{SocketError}: #{e.message}")
           limit  -= 1
