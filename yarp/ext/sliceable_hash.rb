@@ -1,4 +1,4 @@
-require 'yarp'
+# frozen_string_literal: true
 
 module Yarp::Ext
   module SliceableHash

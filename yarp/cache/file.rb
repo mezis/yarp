@@ -1,7 +1,10 @@
-require 'yarp/cache/base'
-require 'yarp/logger'
+# frozen_string_literal: true
+
 require 'pathname'
 require 'uri'
+
+require_relative 'base'
+require_relative '../logger'
 
 module Yarp::Cache
   # A cache store implementation which stores everything on the filesystem.

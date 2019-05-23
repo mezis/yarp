@@ -1,3 +1,6 @@
+
+	!! README IS WORK IN PROGRESS !!
+
 ## Yet Another Rubygems Proxy
 
 > Yarp is a small [Sinatra](http://www.sinatrarb.com) app that makes your
