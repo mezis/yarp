@@ -44,7 +44,6 @@ module Yarp
     get '*' do
       path = full_request_path
       Log.info "REDIRECT <#{path}>"
-      # $stderr.flush
       redirect "#{RUBYGEMS_URL}#{path}"
     end
 
