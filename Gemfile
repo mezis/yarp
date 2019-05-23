@@ -12,5 +12,3 @@ gem 'term-ansicolor'
 
 gem 'pry'      # a better ruby shell
 gem 'pry-byebug'
-gem 'pry-nav'
-gem 'pry-remote'

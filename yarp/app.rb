@@ -19,13 +19,13 @@ module Yarp
     RUBYGEMS_URL = ENV['YARP_UPSTREAM']
 
     CACHEABLE_SHORT = %r{
-      ^/api/v1/dependencies |
-      ^/(prerelease_|latest_)?specs.*\.gz$
+      /api/v1/dependencies |
+      /(prerelease_|latest_)?specs.*\.gz
     }x
 
     CACHEABLE_LONG = %r{
-      /quick.*gemspec\.rz$ |
-      ^/gems/.*\.gem$
+      /quick.*gemspec\.rz |
+      /gems/.*\.gem
     }x
 
     get CACHEABLE_SHORT do
