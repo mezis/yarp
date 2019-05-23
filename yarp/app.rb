@@ -1,28 +1,31 @@
-require 'yarp'
-require 'yarp/ext/sliceable_hash'
-require 'yarp/cache/memcache'
-require 'yarp/cache/file'
-require 'yarp/cache/null'
-require 'yarp/cache/tee'
-require 'yarp/logger'
+# frozen_string_literal: true
 
-require 'sinatra/base'
+module Yarp; end
+
 require 'digest'
-require 'uri'
 require 'net/http'
+require 'sinatra/base'
+require 'uri'
+
+require_relative 'cache/file'
+require_relative 'cache/memcache'
+require_relative 'cache/null'
+require_relative 'cache/tee'
+require_relative 'ext/sliceable_hash'
+require_relative 'logger'
 
 module Yarp
   class App < Sinatra::Base
     RUBYGEMS_URL = ENV['YARP_UPSTREAM']
 
     CACHEABLE_SHORT = %r{
-      ^/api/v1/dependencies |
-      ^/(prerelease_|latest_)?specs.*\.gz$
+      /api/v1/dependencies |
+      /(prerelease_|latest_)?specs.*\.gz
     }x
 
     CACHEABLE_LONG = %r{
-      /quick.*gemspec\.rz$ |
-      ^/gems/.*\.gem$
+      /quick.*gemspec\.rz |
+      /gems/.*\.gem
     }x
 
     get CACHEABLE_SHORT do

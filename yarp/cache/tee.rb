@@ -1,5 +1,7 @@
-require 'yarp/cache/base'
-require 'yarp/logger'
+# frozen_string_literal: true
+
+require_relative 'base'
+require_relative '../logger'
 
 module Yarp::Cache
   class Tee

@@ -1,45 +1,66 @@
+
+	!! README IS WORK IN PROGRESS !!
+
 ## Yet Another Rubygems Proxy
 
 > Yarp is a small [Sinatra](http://www.sinatrarb.com) app that makes your
 > [bundler](http://bundler.io) faster. You'll love it if you update your
 > apps a lot... or simply deploy a lot.
 
-On a example medium-sizes application with 34 direct gems dependencies, Yarp
-makes my `bundle` commands up to 80% faster:
+## Performance
 
+Given gemfile
 
-<table>
-    <tr>
-        <td></td>
-        <td>direct Rubygems</td>
-        <td>with `yarp.io`</td>
-        <td>local Yarp</td>
-    </tr>
-    <tr>
-        <td>bundle install (1 gem missing)</td>
-        <td>170 s</td>
-        <td>51 s</td>
-        <td>24 s</td>
-    </tr>
-    <tr>
-        <td>bundle update (73 updates)</td>
-        <td>140 s</td>
-        <td>65 s</td>
-        <td>45 s</td>
-    </tr>
-    <tr>
-        <td>bundle update (no change)</td>
-        <td>26 s</td>
-        <td>13 s</td>
-        <td>8.5 s</td>
-    </tr>
-</table>
+```
++   $ cat Gemfile
+#source "http://localhost:9292"
+source "https://rubygems.org"
 
-Thats a 45% percent win right there. 8 seconds shaved of my deploy times. If
-you deploy 20 times a day to your staging environments and 5 times a day to
-production, you're getting 15 minutes of your life back every week. Make
-those count!
+gem "nanoc"
+gem "pry"
+gem "rack"
+gem "rspec"
+```
 
+Running against rubygems:
+
+```
+$ bundle install --path .bundle/vendor --jobs 1
+...
+Bundle complete! 4 Gemfile dependencies, 42 gems now installed.
+Bundled gems are installed into `./.bundle/vendor`
+
+real    0m14.263s
+user    0m4.648s
+sys     0m0.856s
+
+Running with cleaned caches:
+
+```
+$ bundle install --path .bundle/vendor --jobs 1
+...
+Bundle complete! 4 Gemfile dependencies, 42 gems now installed.
+Bundled gems are installed into `./.bundle/vendor`
+
+real    0m16.803s
+user    0m3.876s
+sys     0m0.664s
+```
+
+And after it was all cached:
+
+```
+$ bundle install --path .bundle/vendor --jobs 1
+...
+Bundle complete! 4 Gemfile dependencies, 42 gems now installed.
+Bundled gems are installed into `./.bundle/vendor`
+
+real    0m5.329s
+user    0m4.498s
+sys     0m0.809s
+```
+
+So it can get significantly faster after things were cached.
 
 ### Installation and usage
 
