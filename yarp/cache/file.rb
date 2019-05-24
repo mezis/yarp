@@ -132,8 +132,8 @@ module Yarp::Cache
     # yield an IO for the meta file.
     private def _with_flock(path)
       path.parent.mkpath
-      path.open(::File::CREAT | ::File::RDWR) do |io|
-        LOCK.synchronize do
+      LOCK.synchronize do
+        path.open(::File::CREAT | ::File::RDWR) do |io|
           io.flock(::File::LOCK_EX)
           yield io
         ensure
