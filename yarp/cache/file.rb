@@ -1,7 +1,10 @@
-require 'yarp/cache/base'
-require 'yarp/logger'
+# frozen_string_literal: true
+
 require 'pathname'
 require 'uri'
+
+require_relative 'base'
+require_relative '../logger'
 
 module Yarp::Cache
   # A cache store implementation which stores everything on the filesystem.
@@ -10,159 +13,131 @@ module Yarp::Cache
     attr_reader :_cache_path
     attr_reader :_max_bytes
 
-
     def initialize(cache_path:nil, max_bytes:nil)
-      @_cache_path = cache_path ? cache_path.to_s : Pathname(ENV['YARP_FILECACHE_PATH'])
-      @_max_bytes  = max_bytes  ? max_bytes.to_i  : ENV['YARP_FILECACHE_MAX_BYTES'].to_i
+      @_cache_path = Pathname.new(
+        cache_path || Pathname(ENV['YARP_FILECACHE_PATH'])
+      )
+      @_max_bytes  = (max_bytes || ENV['YARP_FILECACHE_MAX_BYTES']).to_i
     end
-
 
     def get(key)
       now = Time.now.to_i
-      _edit_metadata do |metadata|
-        value = metadata[:files].delete(key)
-        return unless value
-
-        size,access,expiry = value
-        if expiry < now
-          _remove_expired
+      _metadata do |m|
+        if !(f_data = m[:files][key])
           return
         end
 
-        metadata[:files][key] = [size,now,expiry]
+        if f_data[2] < now
+          m[:files].delete(key)
+          return
+        end
+
+        m[:files][key][1] = now
         return Marshal.load(_cache_file(key).read)
       end
     end
 
-
     def fetch(key, ttl=nil)
-      value = get(key) and return value
+      if value = get(key)
+        return value
+      end
+
       value = yield
-      _set(key, value, ttl)
+      _metadata do |m|
+        ttl ||= 365 * 86400 # 1 year
+        now = Time.now.to_i
+        expiry = now + ttl
+        data = Marshal.dump(value)
+        size = data.bytesize
+
+        _delete_expired(m)
+        _make_space_for(m, size)
+        _cache_file(key).write(data)
+
+        m[:bytes] += data.size
+        m[:files][key] = [size, now, expiry]
+      end
+      value
     end
 
     def status
       _edit_metadata do |metadata|
-        return { keys:metadata[:files].size, bytes:metadata[:bytes], size:_max_bytes }
+        return {
+          keys: metadata[:files].size,
+          bytes: metadata[:bytes],
+          size: _max_bytes
+        }
       end
     end
 
-
-    def flush
-      _flush
-    end
-
-
-    # private
-
-    Log = Yarp::Logger.new(STDERR)
-    Lock = Mutex.new
+    LOG = Yarp::Logger.new(STDERR)
+    private_constant :LOG
+    LOCK = Mutex.new
+    private_constant :LOCK
 
     # schema for metadata
     # each file entry maps a key (the filename) to 3 integers: the size, the
     # timestamp of last usage and timestamp of expiry.
-    # the first file is the least recently used.
-    def _default_meta
-      { bytes:0, files:{} }
+    private def _default_meta
+      {
+        bytes: 0,
+        files: {},
+      }
     end
 
 
     # path to the file holding cache metadata
-    def _meta_path
+    private def _meta_path
       @_meta_path ||= _cache_path.join('meta')
     end
 
     # path to the file used to store +key+
-    def _cache_file(key)
+    private def _cache_file(key)
       escaped_key = URI.encode_www_form_component(key)
       _cache_path.join(escaped_key)
     end
 
-    # empties the whole cache
-    def _flush
-      _edit_metadata do |metadata|
-        _cache_path.children.each do |child|
-          child.rmtree unless child == _meta_path
-        end
-        metadata.replace(DEFAULT_META)
-      end
-    end
+    private def _delete(m, key)
+      size = m[:files][key][0]
 
-    # write a value to the cache
-    def _set(key, value, ttl=nil)
-      ttl  ||= 365 * 86400 # 1 year
-      now    = Time.now.to_i
-      expiry = now + ttl
-      data   = Marshal.dump(value)
-      size   = data.bytesize
-
-      # require 'pry' ; require 'pry-nav' ; binding.pry
-      _delete(key)
-      _make_space_for(size)
-      _cache_file(key).open('w') { |io| io.write(data) }
-      _edit_metadata do |metadata|
-        metadata[:bytes] += data.bytesize
-        metadata[:files][key] = [size,now,expiry]
-      end
-
-      return value
-    end
-
-    def _delete(key)
-      _edit_metadata do |metadata|
-          size,_,_ = metadata[:files][key]
-          return false if size.nil?
-          metadata[:bytes] -= size
-          metadata[:files].delete(key)
-      end
+      m[:bytes] -= size
+      m[:files].delete(key)
       _cache_file(key).delete
-      return true
     end
 
     # removes expired cache entries (files) and updates metadata
-    def _remove_expired
+    private def _delete_expired(m)
       now = Time.now.to_i
-      _edit_metadata do |metadata|
-        files_to_delete = []
-        metadata[:files].each_pair do |key,(size, _, expires)|
-          next unless expires < now
-          _cache_file(key).delete
-          metadata[:bytes] -= size
-          metadata[:files].delete(key)
-        end
+      m[:files].each_pair do |key, (_, _, expiry)|
+        next unless expiry < now
+        _delete(m, key)
       end
     end
 
     # removes files from the cache until there is enought space for +bytes+
-    def _make_space_for(bytes)
-      raise ArgumentError("cannot store files larger than the cache") if bytes > _max_bytes
-      _edit_metadata do |metadata|
-        while bytes > _max_bytes - metadata[:bytes]
-          key,(size,_,_) = metadata[:files].first
-          Log.warn "FILECACHE evicting #{key}"
-          _cache_file(key).delete
-          metadata[:files].delete(key)
-          metadata[:bytes] -= size
-        end
+    private def _make_space_for(m, bytes)
+      if bytes > _max_bytes
+        raise ArgumentError("cannot store files larger than the cache")
+      end
+
+      m[:files].sort_by { |f_data| f_data[1] }.each do |key, _|
+        return if bytes < _max_bytes - m[:bytes]
+
+        LOG.warn "FILECACHE evicting #{key}"
+        _delete(m, key)
       end
     end
 
     # executes the given block while holding a lock on the meta file.
     # yield an IO for the meta file.
-    # reentrant (yields the same descriptor if called recursively).
-    def _with_lock
-      return yield @_meta_fd if @_meta_fd
-      _meta_path.parent.mkpath
-      _meta_path.open(::File::CREAT | ::File::RDWR) do |io|
-        Lock.synchronize do
-          begin
-            @_meta_fd = io
-            io.flock(::File::LOCK_EX)
-            yield @_meta_fd
-          ensure
-            io.flock(::File::LOCK_UN)
-            @_meta_fd = nil
-          end
+    private def _with_flock(path)
+      path.parent.mkpath
+      LOCK.synchronize do
+        path.open(::File::CREAT | ::File::RDWR) do |io|
+          io.flock(::File::LOCK_EX)
+          yield io
+        ensure
+          io.flock(::File::LOCK_UN)
         end
       end
     end
@@ -170,34 +145,29 @@ module Yarp::Cache
     # yields the current metadata (should be a mutable hash).
     # writes data back (even if unmodified) after running the block.
     # implicitly locks the metadata file.
-    # reentrant (nested calls are passed the same mutable hash).
-    def _edit_metadata
-      return yield @_metadata if @_metadata
-      _with_lock do |io|
+    private def _metadata
+      _with_flock(_meta_path) do |io|
         io.seek(0)
         raw = io.read()
-        @_metadata = begin
-          raw.length == 0 ? _default_meta.dup : Marshal.load(raw)
-        rescue ArgumentError, TypeError
-          Log.warn("FILECACHE resetting broken metatada")
-          _default_meta.dup
-        end
+
+        metadata = begin
+                     raw.length == 0 ? _default_meta.dup : Marshal.load(raw)
+                   rescue ArgumentError, TypeError
+                     LOG.warn("FILECACHE resetting broken metatada")
+                     _default_meta.dup
+                   end
 
         begin
-          yield @_metadata
+          yield metadata
         ensure
-          # Log.debug("FILECACHE metadata before write #{@_metadata.inspect}")
-          raw = Marshal.dump(@_metadata)
+          raw = Marshal.dump(metadata)
 
           io.seek(0)
           io.truncate(raw.bytesize)
           io.write(raw)
           io.flush
-          @_metadata = nil
         end
       end
     end
-
-
   end
 end

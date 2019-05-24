@@ -1,5 +1,8 @@
-require 'yarp/cache/base'
+# frozen_string_literal: true
+
 require 'dalli'
+
+require_relative 'base'
 
 module Yarp::Cache
   class Memcache
