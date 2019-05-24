@@ -41,6 +41,11 @@ module Yarp
       Yarp::Cache::File.new.status.to_json
     end
 
+    get '/health' do
+      Log.debug "HEALTH"
+      [200, {}, ['']]
+    end
+
     get '*' do
       path = full_request_path
       Log.info "REDIRECT <#{path}>"
