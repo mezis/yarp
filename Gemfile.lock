@@ -1,5 +1,5 @@
 GEM
-  remote: http://eu.yarp.io/
+  remote: http://rubygems.org/
   specs:
     coderay (1.1.0)
     dalli (2.7.2)
@@ -21,7 +21,7 @@ GEM
     pry-remote (0.1.8)
       pry (~> 0.9)
       slop (~> 3.0)
-    rack (1.5.2)
+    rack (1.6.13)
     rack-protection (1.5.3)
       rack
     rainbows (4.6.2)
